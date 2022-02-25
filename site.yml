@@ -1,0 +1,60 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:  
+
+  - name: instal updates (centOS)
+    tags: always
+    dnf: 
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution =="CentOS"
+
+  - name: instal updates (Ubuntu)
+    tags: always
+    apt: 
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution =="Ubuntu"
+
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install apache package and php
+    tags: apache,apache2,ubuntu
+    apt: 
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution =="Ubuntu"
+  
+  - name: install apache package and php in centos
+    tags: centos,db,mariadb
+    dnf: 
+      name: 
+        - httpd
+        - php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution =="CentOS"
+
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install apache package and php
+    apt: 
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution =="Ubuntu"
+
+  - name: install apache package and php in centos
