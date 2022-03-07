@@ -2,67 +2,43 @@
 
 - hosts: all
   become: true
-  pre_tasks:  
+  pre_tasks:
 
-  - name: instal updates (centOS)
+  - name: update repository index (CentOS)
     tags: always
-    dnf: 
-      update_only: yes
+    dnf:
       update_cache: yes
-    when: ansible_distribution =="CentOS"
+    changed_when: false
+    when: ansible_distribution == "CentOS"
 
-  - name: instal updates (Ubuntu)
+  - name: update repository index (Ubuntu)
     tags: always
-    apt: 
-      upgrade: dist
+    apt:
       update_cache: yes
-    when: ansible_distribution =="Ubuntu"
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
 
-
+- hosts: all
+  become: true
+  roles:
+    - base
+      
+- hosts: workstations
+  become: true
+  roles:
+    - workstations
+  
 - hosts: web_servers
   become: true
-  tasks:
-
-  - name: install apache package and php
-    tags: apache,apache2,ubuntu
-    apt: 
-      name: 
-        - apache2
-        - libapache2-mod-php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution =="Ubuntu"
-  
-  - name: install apache package and php in centos
-    tags: centos,db,mariadb
-    dnf: 
-      name: 
-        - httpd
-        - php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution =="CentOS"
-
-  - name: copy default html file for site
-    tags: apache,apache2,httpd
-    copy: 
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root 
-      mode: 0644
+  roles:
+    - web_servers
 
 - hosts: db_servers
   become: true
-  tasks:
+  roles:
+    - db_servers
 
-  - name: install apache package and php
-    apt: 
-      name: 
-        - apache2
-        - libapache2-mod-php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution =="Ubuntu"
-
-  - name: install apache package and php in centos
+- hosts: file_servers
+  become: true
+  roles:
+    - file_servers
